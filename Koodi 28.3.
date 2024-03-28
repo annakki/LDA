@@ -31,6 +31,7 @@ filtered_documents = [[word for word in doc if word.lower() not in finnish_stopw
 filtered_documents_strings = [' '.join(doc) for doc in filtered_documents]
 data['puhe'] = filtered_documents_strings
 
+
 # VALITSE MALLIEN JA ITERAATIOIDEN MÄÄRÄ
 lda_model = gensim.models.LdaModel(corpus, num_topics=10, id2word=dictionary, passes=15)
 
