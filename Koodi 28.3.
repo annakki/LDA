@@ -1,3 +1,4 @@
+# pakettien lataus
 Z:\>pip install gensim
 Z:\>pip install nltk
 import gensim
@@ -9,7 +10,7 @@ from nltk.tokenize import word_tokenize
 import pyLDAvis.gensim_models
 nltk.download('punkt')
 
-#VARMISTA AINEISTON SIJAINTI
+# aineiston lataus ja siivous (VARMISTA SIJAINTI)
 file_path = "Z:\\dataUTF.csv"
 data = pd.read_csv(file_path, sep=';', dtype={'puhe': str})
 data = data.iloc[:, :3]
@@ -18,24 +19,27 @@ data['puhe'] = data['puhe'].str.lower()
 print(data.head())
 # VARMISTA TULOSTE
 
+# dokumenttien tokenisointi
 documents = data['puhe'].tolist()
 tokenized_documents = [doc.lower().split() if isinstance(doc, str) else [] for doc in documents]
-dictionary = corpora.Dictionary(tokenized_documents)
-corpus = [dictionary.doc2bow(doc) for doc in tokenized_documents]
 
-#VARMISTA LISTAN SIJAINTI
+# stoplistan lataus (VARMISTA SIJAINTI)
 stopword_file_path = "Z:\\finnish.txt"
 with open(stopword_file_path, "r", encoding="utf-8") as file:
     finnish_stopwords = set(file.read().splitlines())
 
+# stop-sanojen poisto
 filtered_documents = [[word for word in doc if word.lower() not in finnish_stopwords] for doc in tokenized_documents]
-
 filtered_documents_strings = [' '.join(doc) for doc in filtered_documents]
 data['puhe'] = filtered_documents_strings
 
+# sanakirjan ja korpuksen luonti
+dictionary = corpora.Dictionary(tokenized_documents)
+corpus = [dictionary.doc2bow(doc) for doc in tokenized_documents]
 
-# VALITSE MALLIEN JA ITERAATIOIDEN MÄÄRÄ
+# LDA-mallin koulutus (VALITSE MALLIEN JA ITERAATIOIDEN MÄÄRÄ)
 lda_model = gensim.models.LdaModel(corpus, num_topics=10, id2word=dictionary, passes=15)
 
+# tulosten visualisointi
 lda_display = pyLDAvis.gensim_models.prepare(lda_model, corpus, dictionary, sort_topics=False)
 pyLDAvis.display(lda_display)
