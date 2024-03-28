@@ -27,7 +27,9 @@ corpus = [dictionary.doc2bow(doc) for doc in tokenized_documents]
 stopword_file_path = "Z:\\finnish.txt"
 with open(stopword_file_path, "r", encoding="utf-8") as file:
     finnish_stopwords = set(file.read().splitlines())
+
 filtered_documents = [[word for word in doc if word.lower() not in finnish_stopwords] for doc in tokenized_documents]
+
 filtered_documents_strings = [' '.join(doc) for doc in filtered_documents]
 data['puhe'] = filtered_documents_strings
 
