@@ -8,6 +8,8 @@ import pandas as pd
 import nltk
 from nltk.tokenize import word_tokenize
 import pyLDAvis.gensim_models
+import string
+import re
 nltk.download('punkt')
 
 # aineiston lataus ja siivous (VARMISTA SIJAINTI)
@@ -15,7 +17,14 @@ file_path = "Z:\\dataUTF.csv"
 data = pd.read_csv(file_path, sep=';', dtype={'puhe': str})
 data = data.iloc[:, :3]
 data = data.dropna(subset=['puhe'])
-data['puhe'] = data['puhe'].str.lower()
+
+# välimerkkien ja numeroiden poisto
+def remove_punctuation_and_numbers(text):
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = re.sub(r'\d+', '', text)
+    return text
+
+data['puhe'] = data['puhe'].apply(remove_punctuation_and_numbers).str.lower()
 print(data.head())
 # VARMISTA TULOSTE
 
