@@ -1,0 +1,38 @@
+Z:\>pip install gensim
+Z:\>pip install nltk
+import gensim
+from gensim import corpora
+from pprint import pprint
+import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
+import pyLDAvis.gensim_models
+nltk.download('punkt')
+
+#VARMISTA AINEISTON SIJAINTI
+file_path = "Z:\\dataUTF.csv"
+data = pd.read_csv(file_path, sep=';', dtype={'puhe': str})
+data = data.iloc[:, :3]
+data = data.dropna(subset=['puhe'])
+data['puhe'] = data['puhe'].str.lower()
+print(data.head())
+# VARMISTA TULOSTE
+
+documents = data['puhe'].tolist()
+tokenized_documents = [doc.lower().split() if isinstance(doc, str) else [] for doc in documents]
+dictionary = corpora.Dictionary(tokenized_documents)
+corpus = [dictionary.doc2bow(doc) for doc in tokenized_documents]
+
+#VARMISTA LISTAN SIJAINTI
+stopword_file_path = "Z:\\finnish.txt"
+with open(stopword_file_path, "r", encoding="utf-8") as file:
+    finnish_stopwords = set(file.read().splitlines())
+filtered_documents = [[word for word in doc if word.lower() not in finnish_stopwords] for doc in tokenized_documents]
+filtered_documents_strings = [' '.join(doc) for doc in filtered_documents]
+data['puhe'] = filtered_documents_strings
+
+# VALITSE MALLIEN JA ITERAATIOIDEN MÄÄRÄ
+lda_model = gensim.models.LdaModel(corpus, num_topics=10, id2word=dictionary, passes=15)
+
+lda_display = pyLDAvis.gensim_models.prepare(lda_model, corpus, dictionary, sort_topics=False)
+pyLDAvis.display(lda_display)
