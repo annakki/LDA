@@ -12,7 +12,7 @@ import string
 import re
 nltk.download('punkt')
 
-# aineiston lataus ja siivous (VARMISTA SIJAINTI)
+# aineiston lataus (VARMISTA SIJAINTI)
 file_path = "Z:\\dataUTF.csv"
 data = pd.read_csv(file_path, sep=';', dtype={'puhe': str})
 data = data.iloc[:, :3]
@@ -43,12 +43,18 @@ filtered_documents_strings = [' '.join(doc) for doc in filtered_documents]
 data['puhe'] = filtered_documents_strings
 
 # sanakirjan ja korpuksen luonti
-dictionary = corpora.Dictionary(tokenized_documents)
-corpus = [dictionary.doc2bow(doc) for doc in tokenized_documents]
+dictionary = corpora.Dictionary(filtered_documents)
+corpus = [dictionary.doc2bow(doc) for doc in filtered_documents]
 
-# LDA-mallin koulutus (VALITSE MALLIEN JA ITERAATIOIDEN MÄÄRÄ)
+# LDA-mallin koulutus (VALITSE AIHEIDEN JA ITERAATIOIDEN MÄÄRÄ)
 lda_model = gensim.models.LdaModel(corpus, num_topics=10, id2word=dictionary, passes=15)
 
 # tulosten visualisointi
 lda_display = pyLDAvis.gensim_models.prepare(lda_model, corpus, dictionary, sort_topics=False)
 pyLDAvis.display(lda_display)
+
+#vaihtoehtoinen visualisointi
+for topic_id, topic_words in lda_model.print_topics():
+    print(f"Topic ID: {topic_id}")
+    print(f"Words: {topic_words}")
+    print()  # Print an empty line for readability
